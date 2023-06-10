@@ -27,6 +27,13 @@ async function run() {
 
     const usersCollection = client.db("mindFullHeaven").collection("users");
 
+    // create token(jwt)
+    app.post("/jwt", (req, res)=> {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET,{ expiresIn: '1h' })
+      res.send(token);
+    })
+
     // users related api
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
