@@ -59,6 +59,15 @@ async function run() {
       });
       res.send({ token });
     });
+    const verifyAdmin = async(req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email: email }
+      const user = await usersCollection.findOne(query);
+      if (user?.role !== 'admin') {
+        return res.status(403).send({error: true, message: 'Forbidden message'})
+      }
+      next();
+    }
 
     // users related api
     app.put("/users/:email", async (req, res) => {
@@ -76,7 +85,7 @@ async function run() {
       );
       res.send(result);
     });
-    app.get("/users", async (req, res) => {
+    app.get("/users", jwtVerify, verifyAdmin, async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
@@ -145,6 +154,10 @@ async function run() {
       const result = await classesCollection.insertOne(addClass);
       res.send(result);
     });
+    app.get("/manageClass", async(req, res)=> {
+      const result = await classesCollection.find().toArray();
+      res.send(result);
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
