@@ -49,6 +49,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("mindFullHeaven").collection("users");
+    const classesCollection = client.db("mindFullHeaven").collection("classes");
 
     // create token(jwt)
     app.post("/jwt", (req, res) => {
@@ -79,36 +80,36 @@ async function run() {
       const result = await usersCollection.find().toArray();
       res.send(result);
     });
-    app.get("/users/admin/:email", jwtVerify, async(req, res) => {
+    app.get("/users/admin/:email", jwtVerify, async (req, res) => {
       const email = req.params.email;
       if (req.decoded.email !== email) {
-        res.send({admin: false})
+        res.send({ admin: false });
       }
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       const result = { admin: user?.role === "admin" };
       res.send(result);
-    })
-    app.get("/users/instructor/:email", jwtVerify, async(req, res) => {
+    });
+    app.get("/users/instructor/:email", jwtVerify, async (req, res) => {
       const email = req.params.email;
       if (req.decoded.email !== email) {
-        res.send({instructor: false})
+        res.send({ instructor: false });
       }
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       const result = { instructor: user?.role === "instructor" };
       res.send(result);
-    })
-    app.get("/users/student/:email", jwtVerify, async(req, res) => {
+    });
+    app.get("/users/student/:email", jwtVerify, async (req, res) => {
       const email = req.params.email;
       if (req.decoded.email !== email) {
-        res.send({student: false})
+        res.send({ student: false });
       }
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       const result = { student: user?.role === undefined };
       res.send(result);
-    })
+    });
     app.patch("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -135,6 +136,13 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await usersCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // all classes collection related api
+    app.post("/addClass", async (req, res) => {
+      const addClass = req.body;
+      const result = await classesCollection.insertOne(addClass);
       res.send(result);
     });
 
