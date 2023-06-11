@@ -95,6 +95,7 @@ async function run() {
       const email = req.params.email;
       if (req.decoded.email !== email) {
         res.send({ admin: false });
+        return;
       }
       const query = { email: email };
       const user = await usersCollection.findOne(query);
@@ -105,6 +106,7 @@ async function run() {
       const email = req.params.email;
       if (req.decoded.email !== email) {
         res.send({ instructor: false });
+        return;
       }
       const query = { email: email };
       const user = await usersCollection.findOne(query);
@@ -115,6 +117,7 @@ async function run() {
       const email = req.params.email;
       if (req.decoded.email !== email) {
         res.send({ student: false });
+        return;
       }
       const query = { email: email };
       const user = await usersCollection.findOne(query);
@@ -184,6 +187,19 @@ async function run() {
           status: "denied",
         },
       };
+      const result = await classesCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+    app.put("/manageClass/feedback/:id", async (req, res) => {
+      const id = req.params.id;
+      // const feedback = req.body;
+      const query = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          feedback: req.body.feedback,
+        },
+      };
+      // const options = { upsert: true }
       const result = await classesCollection.updateOne(query, updateDoc);
       res.send(result);
     });
