@@ -152,11 +152,11 @@ async function run() {
       const result = await usersCollection.deleteOne(query);
       res.send(result);
     });
-    app.get("/users/instructor", async(req, res)=> {
+    app.get("/users/instructor", async (req, res) => {
       const query = { role: "instructor" };
       const result = await usersCollection.find(query).toArray();
-      res.send(result)
-    })
+      res.send(result);
+    });
 
     // all classes collection related api
     app.post("/addClass", async (req, res) => {
@@ -192,28 +192,45 @@ async function run() {
     });
     app.put("/manageClass/feedback/:id", async (req, res) => {
       const id = req.params.id;
-      // const feedback = req.body;
       const query = { _id: new ObjectId(id) };
       const updateDoc = {
         $set: {
           feedback: req.body.feedback,
         },
       };
-      // const options = { upsert: true }
       const result = await classesCollection.updateOne(query, updateDoc);
       res.send(result);
     });
-    app.get("/approveClasses", async(req, res)=> {
+    app.put("/manageClass/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updated = req.body;
+      const updateDoc = {
+        $set: {
+          className: updated.name,
+          availableSeats: updated.seats,
+          price: updated.price,
+        },
+      };
+      const options = { upsert: true };
+      const result = await classesCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+    app.get("/approveClasses", async (req, res) => {
       const query = { status: "approve" };
       const result = await classesCollection.find(query).toArray();
-      res.send(result)
-    })
+      res.send(result);
+    });
     app.get("/myClass/:email", async (req, res) => {
       const email = req.params.email;
       const query = { instructorEmail: email };
-      console.log("from query", query)
+      console.log("from query", query);
       const result = await classesCollection.find(query).toArray();
-      console.log(result)
+      console.log(result);
       res.send(result);
     });
 
