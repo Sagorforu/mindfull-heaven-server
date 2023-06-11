@@ -59,15 +59,17 @@ async function run() {
       });
       res.send({ token });
     });
-    const verifyAdmin = async(req, res, next) => {
+    const verifyAdmin = async (req, res, next) => {
       const email = req.decoded.email;
-      const query = { email: email }
+      const query = { email: email };
       const user = await usersCollection.findOne(query);
-      if (user?.role !== 'admin') {
-        return res.status(403).send({error: true, message: 'Forbidden message'})
+      if (user?.role !== "admin") {
+        return res
+          .status(403)
+          .send({ error: true, message: "Forbidden message" });
       }
       next();
-    }
+    };
 
     // users related api
     app.put("/users/:email", async (req, res) => {
@@ -147,6 +149,11 @@ async function run() {
       const result = await usersCollection.deleteOne(query);
       res.send(result);
     });
+    app.get("/users/instructor", async(req, res)=> {
+      const query = { role: "instructor" };
+      const result = await usersCollection.find(query).toArray();
+      res.send(result)
+    })
 
     // all classes collection related api
     app.post("/addClass", async (req, res) => {
@@ -154,11 +161,11 @@ async function run() {
       const result = await classesCollection.insertOne(addClass);
       res.send(result);
     });
-    app.get("/manageClass", async(req, res)=> {
+    app.get("/manageClass", async (req, res) => {
       const result = await classesCollection.find().toArray();
       res.send(result);
-    })
-    app.patch("/manageClass/approve/:id", async(req, res)=> {
+    });
+    app.patch("/manageClass/approve/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const updateDoc = {
@@ -168,8 +175,8 @@ async function run() {
       };
       const result = await classesCollection.updateOne(query, updateDoc);
       res.send(result);
-    })
-    app.patch("/manageClass/denied/:id", async(req, res)=> {
+    });
+    app.patch("/manageClass/denied/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const updateDoc = {
@@ -179,7 +186,20 @@ async function run() {
       };
       const result = await classesCollection.updateOne(query, updateDoc);
       res.send(result);
+    });
+    app.get("/approveClasses", async(req, res)=> {
+      const query = { status: "approve" };
+      const result = await classesCollection.find(query).toArray();
+      res.send(result)
     })
+    app.get("/myClass/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { instructorEmail: email };
+      console.log("from query", query)
+      const result = await classesCollection.find(query).toArray();
+      console.log(result)
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
