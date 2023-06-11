@@ -50,6 +50,9 @@ async function run() {
 
     const usersCollection = client.db("mindFullHeaven").collection("users");
     const classesCollection = client.db("mindFullHeaven").collection("classes");
+    const selectedClassesCollection = client
+      .db("mindFullHeaven")
+      .collection("selectedClasses");
 
     // create token(jwt)
     app.post("/jwt", (req, res) => {
@@ -233,6 +236,14 @@ async function run() {
       console.log(result);
       res.send(result);
     });
+
+    // selected class related API
+    app.post("/selectedClass", async(req, res)=>{
+      const selectedClass = req.body;
+      const result = await selectedClassesCollection.insertOne(selectedClass);
+      console.log(result)
+      res.send(result)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
